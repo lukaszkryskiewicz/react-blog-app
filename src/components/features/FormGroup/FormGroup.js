@@ -7,7 +7,7 @@ const FormGroup = (props) => {
     <>
       <Form.Group className="mb-3">
         <Form.Label>{props.children}</Form.Label>
-        <Form.Control type={props.type} as={props.as} rows={props.rows} placeholder={props.placeholder} name={props.name} onChange={props.onChange} />
+        <Form.Control type={props.type} as={props.as} rows={props.rows} placeholder={props.placeholder} name={props.name} defaultValue={props.defaultValue} onChange={props.onChange} />
       </Form.Group>
     </>
   )
