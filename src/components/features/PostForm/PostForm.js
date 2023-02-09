@@ -1,44 +1,64 @@
 import { Form, Button } from "react-bootstrap";
 import { useState } from "react";
 import FormGroup from "../FormGroup/FormGroup";
+import ReactQuill from 'react-quill';
+import "react-quill/dist/quill.snow.css";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+import { useForm } from "react-hook-form";
+
 
 const PostForm = (props) => {
-  const validate = () => {
-    let valid = 1
-    for (const property in newPost) {
-      valid = valid * newPost[property].length
-    }
-    return Boolean(valid)
-  };
-
+  const { register, handleSubmit: validate, formState: { errors } } = useForm();
   const [newPost, setNewPost] = useState({
     title: props.title || '',
     shortDescription: props.shortDescription || '',
     content: props.content || '',
-    publishedDate: props.publishedDate || '',
+    publishedDate: props.publishedDate || new Date(),
     author: props.author || ''
   })
+  const [contentError, setContentError] = useState(false)
+  const [dateError, setDateError] = useState(false)
 
   const handleChange = (e) => {
-    setNewPost({
-      ...newPost,
-      [e.target.name]: e.target.value
-    })
+    if (e.target !== undefined) {
+      setNewPost({
+        ...newPost,
+        [e.target.name]: e.target.value
+      })
+    } else if (typeof (e) === 'string') {
+      setNewPost({
+        ...newPost,
+        content: e
+      })
+    } else {
+      setNewPost({
+        ...newPost,
+        publishedDate: e
+
+      })
+    }
   }
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    props.action(newPost)
+  const handleSubmit = () => {
+    setContentError(!newPost.content)
+    setDateError(!newPost.publishedDate)
+    if (newPost.content && newPost.publishedDate) {
+      props.action(newPost)
+    }
   }
 
   return (
-    <Form onSubmit={handleSubmit}>
-      <FormGroup type="text" placeholder="Enter title" name={"title"} defaultValue={newPost.title} onChange={handleChange}>Title</FormGroup>
-      <FormGroup type="text" placeholder="Enter author" name={"author"} defaultValue={newPost.author} onChange={handleChange}>Author</FormGroup>
-      <FormGroup type="date" placeholder="Published date" name="publishedDate" defaultValue={newPost.publishedDate} onChange={handleChange}>Published Date</FormGroup>
-      <FormGroup type="text" as="textarea" rows={3} placeholder="Write here" name="shortDescription" defaultValue={newPost.shortDescription} onChange={handleChange}>Short description</FormGroup>
-      <FormGroup type="text" as="textarea" rows={10} placeholder="Write here" name="content" defaultValue={newPost.content} onChange={handleChange}>Content</FormGroup>
-      <Button variant="primary" type="submit" disabled={!validate()}>
+    <Form onSubmit={validate(handleSubmit)}>
+      <FormGroup register={register} errors={errors} type="text" placeholder="Enter title" name={"title"} value={newPost.title} onChange={handleChange}>Title</FormGroup>
+      <FormGroup register={register} errors={errors} type="text" placeholder="Enter author" name={"author"} value={newPost.author} onChange={handleChange}>Author</FormGroup>
+      <DatePicker selected={newPost.publishedDate} onChange={(date) => handleChange(date)} />
+      {dateError && <small className="d-block form-text text-danger mt-2">Content can't be empty</small>}
+      <FormGroup register={register} errors={errors} type="text" as="textarea" rows={3} placeholder="Write here" name="shortDescription" value={newPost.shortDescription} onChange={handleChange}>Short description</FormGroup>
+      <Form.Label> Content:</Form.Label>
+      <ReactQuill theme="snow" placeholder="Write here" value={newPost.content} onChange={handleChange}></ReactQuill>
+      {contentError && <small className="d-block form-text text-danger mt-2">Content can't be empty</small>}
+      <Button className="m-3" variant="primary" type="submit" >
         {props.actionText}
       </Button>
     </Form>

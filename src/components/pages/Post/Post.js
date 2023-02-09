@@ -3,6 +3,7 @@ import { getPostById, removePost } from "../../../redux/postsRedux";
 import { useSelector, useDispatch } from "react-redux";
 import { Row, Col, Button, Modal } from "react-bootstrap";
 import { useState } from "react";
+import { dateToStr } from "../../../utils/dateToStr";
 
 const Post = () => {
   const [show, setShow] = useState(false)
@@ -18,15 +19,15 @@ const Post = () => {
     setShow(false)
   }
 
-  if (!postData) return <Navigate to="/" />
 
+  if (!postData) return <Navigate to="/" />
   return (
     <Row className="justify-content-md-center">
       <Col lg={5}>
         <h2>{postData.title}</h2>
         <p><span className="fw-bold">Author:</span> {postData.author}</p>
-        <p><span className="fw-bold">Published:</span> {postData.publishedDate}</p>
-        <p>{postData.content}</p>
+        <p><span className="fw-bold">Published:</span> {dateToStr(postData.publishedDate)}</p>
+        <p dangerouslySetInnerHTML={{ __html: postData.content }} />
       </Col>
       <Col lg={3}>
         <Link to={"/post/edit/" + postData.id}><Button variant="outline-info" className="m-2">Edit</Button></Link>
@@ -49,5 +50,6 @@ const Post = () => {
     </Row>
   )
 }
+
 
 export default Post;
