@@ -6,16 +6,20 @@ import "react-quill/dist/quill.snow.css";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { useForm } from "react-hook-form";
+import { useSelector } from "react-redux";
+import { getAllCategories } from "../../../redux/categoriesRedux";
 
 
 const PostForm = (props) => {
+  const categories = useSelector(getAllCategories)
   const { register, handleSubmit: validate, formState: { errors } } = useForm();
   const [newPost, setNewPost] = useState({
     title: props.title || '',
     shortDescription: props.shortDescription || '',
     content: props.content || '',
     publishedDate: props.publishedDate || new Date(),
-    author: props.author || ''
+    author: props.author || '',
+    category: props.category || ''
   })
   const [contentError, setContentError] = useState(false)
   const [dateError, setDateError] = useState(false)
@@ -54,6 +58,10 @@ const PostForm = (props) => {
       <FormGroup register={register} errors={errors} type="text" placeholder="Enter author" name={"author"} value={newPost.author} onChange={handleChange}>Author</FormGroup>
       <DatePicker selected={newPost.publishedDate} onChange={(date) => handleChange(date)} />
       {dateError && <small className="d-block form-text text-danger mt-2">Content can't be empty</small>}
+      <Form.Select className='my-4' value={newPost.category} name={"category"} onChange={handleChange}>
+        <option>Select Category...</option>
+        {categories.map(category => <option key={category}>{category}</option>)}
+      </Form.Select>
       <FormGroup register={register} errors={errors} type="text" as="textarea" rows={3} placeholder="Write here" name="shortDescription" value={newPost.shortDescription} onChange={handleChange}>Short description</FormGroup>
       <Form.Label> Content:</Form.Label>
       <ReactQuill theme="snow" placeholder="Write here" value={newPost.content} onChange={handleChange}></ReactQuill>
